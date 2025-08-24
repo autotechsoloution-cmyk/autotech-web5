@@ -2,7 +2,32 @@
 {% block content %}
   <div class="card">
     <h1>Drive like it's 2025.</h1>
-    <p class="muted">Wireless CarPlay & Android Auto head units. Factory‑fit, mobile install in Brisbane & Gold Coast.</p>
+    <p class="muted">Wireless CarPlay & Android Auto head units. Mobile install in Brisbane & Gold Coast.</p>
     <a class="btn" href="{{ url_for('shop') }}">Browse units</a>
   </div>
+
+  <div class="card"><h3>Most viewed</h3>
+    <div class="grid">
+      {% for u in most %}
+      <div class="card">
+        <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
+        <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
+        <a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card"><h3>Favourites</h3>
+    <div class="grid">
+      {% for u in fav %}
+      <div class="card">
+        <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
+        <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
+        <a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 {% endblock %}
+
