@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>VIN Checker</h2>
+<div class="card">
+  <form method="post">
+    <input name="vin" placeholder="Enter VIN" style="width:260px" />
+    <button class="btn" type="submit">Decode</button>
+  </form>
+  {% if err %}<p style="color:#f87171">{{ err }}</p>{% endif %}
+  {% if decoded %}
+    <p>Year: {{ decoded.Year }} &nbsp; Make: {{ decoded.Make }} &nbsp; Model: {{ decoded.Model }}</p>
+    {% if premium_hint %}<p class="muted">Premium audio detected: {{ premium_hint }}</p>{% endif %}
+  {% endif %}
+</div>
+{% endblock %}
