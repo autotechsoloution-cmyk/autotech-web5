@@ -1,11 +1,17 @@
 {% extends "base.html" %}
 {% block content %}
-  <h2>Shop</h2>
-  {% for u in items %}
-    <div class="card">
-      <b>{{ u.brand }} {{ u.model }}</b> — ${{ u.price }} AUD
-      <div><a class="btn" href="{{ url_for('unit_detail', uid=u.id) }}">Details</a></div>
-    </div>
-  {% endfor %}
+<h2>Shop</h2>
+<div class="grid">
+{% for u in items %}
+  <div class="card">
+    <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
+    <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
+    <form method="post" action="{{ url_for('add', uid=u['id']) }}">
+      <button class="btn" type="submit">Add to cart — {{ (u['PriceAUD']) }} AUD</button>
+    </form>
+    <div style="margin-top:6px"><a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a></div>
+  </div>
+{% endfor %}
+</div>
 {% endblock %}
 
