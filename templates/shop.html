@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2>Shop</h2>
+  {% for u in items %}
+    <div class="card">
+      <b>{{ u.brand }} {{ u.model }}</b> — ${{ u.price }} AUD
+      <div><a class="btn" href="{{ url_for('unit_detail', uid=u.id) }}">Details</a></div>
+    </div>
+  {% endfor %}
+{% endblock %}
+
