@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Cart</h2>
+<div class="card">
+  {% if not items %}
+    Empty. <a class="btn" href="{{ url_for('shop') }}">Go to shop</a>
+  {% else %}
+    <form method="post">
+      <label>Postcode (to unlock install/call-out for Brisbane/Gold Coast):</label>
+      <input name="postcode" value="{{ postcode }}" placeholder="e.g. 4000" />
+      <label><input type="checkbox" name="want_install" {% if want_install %}checked{% endif %} {% if not local_ok %}disabled{% endif %}> Install</label>
+      <label><input type="checkbox" name="want_callout" {% if want_callout %}checked{% endif %} {% if not local_ok %}disabled{% endif %}> Call-out</label>
+      <button class="btn" type="submit">Update</button>
+    </form>
+    <p class="muted">Local eligible: {{ 'Yes' if local_ok else 'No (Brisbane/Gold Coast only)' }}</p>
+    <ul>
+      {% for u in items %}
+        <li>{{ u['Brand'] }} {{ u['Model (Series/Gen)'] }} — {{ u['PriceAUD'] }} AUD</li>
+      {% endfor %}
+    </ul>
+    <p>Subtotal: {{ sub_units }} AUD</p>
+    <p>Install: {{ install_total }} AUD &nbsp; Call-out: {{ callout_total }} AUD &nbsp; Shipping: {{ shipping }} AUD</p>
+    <h3>Total: {{ grand }} AUD ({{ g.ccy }})</h3>
+    <a class="btn" href="{{ url_for('checkout') }}">Checkout</a>
+  {% endif %}
+</div>
+{% endblock %}
