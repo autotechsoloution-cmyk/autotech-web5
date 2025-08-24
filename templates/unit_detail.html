@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-  <div class="card">
-    <h2>{{ u.brand }} {{ u.model }}</h2>
-    <p class="muted">Years: {{ u.years }} · Head unit: {{ u.size }}</p>
-    <p><b>Price:</b> ${{ u.price }} AUD</p>
-    <a class="btn" href="{{ url_for('shop') }}">Back to Shop</a>
-  </div>
+<div class="card">
+  <h2>{{ u['Brand'] }} {{ u["Model (Series/Gen)"] }}</h2>
+  <p class="muted">Years: {{ u["Years From"] }}–{{ u["Years To"] }} · Head unit: {{ u["Head Unit Size"] }}</p>
+  <form method="post" action="{{ url_for('add', uid=u['id']) }}">
+    <button class="btn" type="submit">Add to cart — {{ u['PriceAUD'] }} AUD</button>
+  </form>
+</div>
 {% endblock %}
