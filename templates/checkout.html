@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Checkout</h2>
+<div class="card">
+  <ul>
+    {% for u in items %}
+      <li>{{ u['Brand'] }} {{ u['Model (Series/Gen)'] }} — {{ u['PriceAUD'] }} AUD</li>
+    {% endfor %}
+  </ul>
+  <p>Subtotal: {{ sub_units }} AUD</p>
+  <p>Install: {{ install_total }} AUD &nbsp; Call-out: {{ callout_total }} AUD &nbsp; Shipping: {{ shipping }} AUD</p>
+  <h3>Total: {{ grand }} AUD ({{ g.ccy }})</h3>
+  <p class="muted">Payment gateway will be wired in once keys are added.</p>
+</div>
+{% endblock %}
