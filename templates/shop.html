@@ -4,14 +4,14 @@
 <div class="grid">
 {% for u in items %}
   <div class="card">
+    <div class="imgwrap"><img src="{{ url_for('static', filename=u.img) }}" alt="" style="max-height:100%;max-width:100%"></div>
     <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
     <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
-    <form method="post" action="{{ url_for('add', uid=u['id']) }}">
-      <button class="btn" type="submit">Add to cart — {{ (u['PriceAUD']) }} AUD</button>
+    <form method="post" action="{{ url_for('add_quick', uid=u['id']) }}">
+      <button class="btn" type="submit">Add to cart — {{ u['PriceAUD'] }} AUD</button>
     </form>
     <div style="margin-top:6px"><a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a></div>
   </div>
 {% endfor %}
 </div>
 {% endblock %}
-
