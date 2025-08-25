@@ -2,9 +2,56 @@
 {% block content %}
 <div class="card">
   <h2>{{ u['Brand'] }} {{ u["Model (Series/Gen)"] }}</h2>
-  <p class="muted">Years: {{ u["Years From"] }}–{{ u["Years To"] }} · Head unit: {{ u["Head Unit Size"] }}</p>
-  <form method="post" action="{{ url_for('add', uid=u['id']) }}">
-    <button class="btn" type="submit">Add to cart — {{ u['PriceAUD'] }} AUD</button>
+  <div class="imgwrap" style="height:240px">
+    <img src="{{ url_for('static', filename=u.img) }}" alt="" style="max-height:100%;max-width:100%">
+  </div>
+  <p class="muted">Years: {{ u["Years From"] }}–{{ u["Years To"] }} · Head unit: {{ u["Head Unit Size"] }} · Luxury: {{ u["Luxury"] }}</p>
+
+  <div data-tabs="opts" class="tabs">
+    <div class="tab active" data-name="audio" onclick="activateTab('opts','audio')">Audio options</div>
+    <div class="tab" data-name="install" onclick="activateTab('opts','install')">Install & Call‑out</div>
+    <div class="tab" data-name="extras" onclick="activateTab('opts','extras')">Extras</div>
+  </div>
+
+  <form method="post">
+    <div data-panes="opts">
+      <div class="tabpane active" data-name="audio">
+        <p><b>Custom sound system?</b></p>
+        <label><input type="radio" name="custom_sound" value="no" checked> No / factory</label>
+        <label><input type="radio" name="custom_sound" value="yes"> Yes (aftermarket amps/subs)</label>
+
+        <p style="margin-top:12px"><b>Premium OEM brand (if applicable)</b></p>
+        <select name="premium_brand">
+          <option value="">None / Not sure</option>
+          <option>JBL</option>
+          <option>Harman Kardon</option>
+          <option>Bang & Olufsen</option>
+          <option>Meridian</option>
+          <option>Bose</option>
+          <option>Mark Levinson</option>
+          <option>Rockford Fosgate</option>
+        </select>
+        <p class="muted" style="margin-top:6px">Selecting the premium brand helps us bring the correct MOST/AMP integration kit.</p>
+      </div>
+
+      <div class="tabpane" data-name="install">
+        <p><b>Service area check (Brisbane & Gold Coast only):</b></p>
+        <input name="postcode" value="{{ postcode }}" placeholder="Postcode e.g. 4000" />
+        <p class="muted">Install and call‑out options are enabled only if the postcode is in our local area.</p>
+        <label><input type="checkbox" name="want_install" {% if not local_ok %}disabled{% endif %}> Request installation ({{ '130' if u['Luxury']=='Yes' else '90' }} AUD)</label>
+        <label><input type="checkbox" name="want_callout" {% if not local_ok %}disabled{% endif %}> Call‑out (60 AUD)</label>
+      </div>
+
+      <div class="tabpane" data-name="extras">
+        <label><input type="checkbox" name="extra_mic"> Add external microphone</label>
+        <label><input type="checkbox" name="keep_sw_controls" checked> Keep steering‑wheel controls</label>
+      </div>
+    </div>
+
+    <div style="margin-top:14px">
+      <button class="btn" type="submit">Add to cart — {{ u['PriceAUD'] }} AUD</button>
+      <a class="btn" href="{{ url_for('shop') }}" style="margin-left:8px">Back to shop</a>
+    </div>
   </form>
 </div>
 {% endblock %}
