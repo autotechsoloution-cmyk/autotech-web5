@@ -6,10 +6,24 @@
     <a class="btn" href="{{ url_for('shop') }}">Browse units</a>
   </div>
 
+  <div class="card">
+    <h3>Don’t know your exact car model? Check my VIN</h3>
+    <form method="post">
+      <input name="vin" placeholder="Enter VIN (17 characters)" style="width:260px" />
+      <button class="btn" type="submit">Decode VIN</button>
+    </form>
+    {% if vin_error %}<p style="color:#f87171">{{ vin_error }}</p>{% endif %}
+    {% if vin_result %}
+      <p>Year: <b>{{ vin_result.Year }}</b> &nbsp; Make: <b>{{ vin_result.Make }}</b> &nbsp; Model: <b>{{ vin_result.Model }}</b></p>
+      {% if vin_result.premium_hint %}<p class="muted">Premium audio detected: {{ vin_result.premium_hint }}</p>{% endif %}
+    {% endif %}
+  </div>
+
   <div class="card"><h3>Most viewed</h3>
     <div class="grid">
       {% for u in most %}
       <div class="card">
+        <div class="imgwrap"><img src="{{ url_for('static', filename=u.img) }}" alt="" style="max-height:100%;max-width:100%"></div>
         <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
         <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
         <a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a>
@@ -22,6 +36,7 @@
     <div class="grid">
       {% for u in fav %}
       <div class="card">
+        <div class="imgwrap"><img src="{{ url_for('static', filename=u.img) }}" alt="" style="max-height:100%;max-width:100%"></div>
         <div><b>{{u['Brand']}} {{u['Model (Series/Gen)']}}</b></div>
         <div class="muted">{{u['Years From']}}–{{u['Years To']}} · {{u['Head Unit Size']}}</div>
         <a class="btn" href="{{ url_for('unit_detail', uid=u['id']) }}">Details</a>
@@ -30,4 +45,3 @@
     </div>
   </div>
 {% endblock %}
-
