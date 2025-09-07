@@ -34,8 +34,8 @@
           {% set opt = x.opt %}
           {% if opt.custom_sound %}Custom sound: Yes<br>{% endif %}
           {% if opt.premium_brand %}Premium: {{ opt.premium_brand }}<br>{% endif %}
-          {% if opt.extra_mic %}External mic<br>{% endif %}
-          {% if opt.keep_sw_controls %}SWC retained<br>{% endif %}
+          {% if opt.gps %}GPS module (+50)<br>{% endif %}
+          {% if opt.dashcam %}Dash cam (+80)<br>{% endif %}
           {% if opt.postcode %}Postcode: {{ opt.postcode }}{% endif %}
           {% if opt.want_install %}<br>Install requested{% endif %}
           {% if opt.want_callout %}<br>Call-out requested{% endif %}
@@ -52,7 +52,7 @@
 
     <div style="margin-top:14px">
       <p>Subtotal (units): <b>{{ sub_units }}</b> AUD</p>
-      <p>Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
+      <p>Extras: <b>{{ extras_total }}</b> AUD &nbsp; Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
       <h3>Grand total: {{ grand }} AUD ({{ g.ccy }})</h3>
     </div>
 
@@ -60,3 +60,4 @@
   {% endif %}
 </div>
 {% endblock %}
+
