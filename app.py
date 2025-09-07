@@ -216,6 +216,30 @@ def checkout():
     ship = ship_est(pc, len(items)) if pc else 0
     grand = sub + inst + call + ship
     return render_template("checkout.html", items=items, sub_units=sub, install_total=inst, callout_total=call, shipping=ship, grand=grand, fx=fx)
-
+@app.get("/lookup")
+def lookup():
+    """
+    Dropdown flow:
+    1) Choose Brand
+    2) Choose Model (Series/Gen)
+    3) Choose Year
+    We filter UNITS by (Brand + Model + Year within [Years From, Years To]).
+    """
+    # Prepare a compact structure for the client (to build dropdowns quickly)
+    simple = []
+    for u in UNITS:
+        simple.append({
+            "id": u["id"],
+            "brand": u["Brand"],
+            "model": u["Model (Series/Gen)"],
+            "y0": u["Years From"],
+            "y1": u["Years To"],
+            "size": u["Head Unit Size"],
+            "lux": u["Luxury"],
+            "price": u["PriceAUD"],
+            "img": u.get("img", "placeholder.jpg"),
+        })
+    # We’ll pass this to the template as JSON via Jinja; template JS handles the cascading selects.
+    return render_template("lookup.html", items=simple)
 if __name__ == "__main__":
     app.run(debug=True)
