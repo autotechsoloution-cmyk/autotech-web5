@@ -25,8 +25,8 @@
           {% set opt = x.opt %}
           {% if opt.custom_sound %}Custom sound: Yes · {% endif %}
           {% if opt.premium_brand %}Premium: {{ opt.premium_brand }} · {% endif %}
-          {% if opt.extra_mic %}External mic · {% endif %}
-          {% if opt.keep_sw_controls %}SWC retained · {% endif %}
+          {% if opt.gps %}GPS module (+50) · {% endif %}
+          {% if opt.dashcam %}Dash cam (+80) · {% endif %}
           {% if opt.postcode %}Postcode: {{ opt.postcode }}{% endif %}
           {% if opt.want_install %} · Install{% endif %}
           {% if opt.want_callout %} · Call-out{% endif %}
@@ -38,11 +38,11 @@
 
     <div style="margin-top:14px">
       <p>Subtotal (units): <b>{{ sub_units }}</b> AUD</p>
-      <p>Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
+      <p>Extras: <b>{{ extras_total }}</b> AUD &nbsp; Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
       <h3>Grand total: {{ grand }} AUD ({{ g.ccy }})</h3>
     </div>
 
-    <p class="muted">Payments (Stripe/Apple Pay) can be enabled next; totals are accurate with your Brisbane/Gold Coast gating and fees.</p>
+    <p class="muted">Ready for Stripe/Apple Pay when you’re set with keys.</p>
   {% endif %}
 </div>
 {% endblock %}
