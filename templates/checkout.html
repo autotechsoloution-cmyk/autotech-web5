@@ -1,15 +1,48 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Checkout</h2>
+
 <div class="card">
-  <ul>
-    {% for u in items %}
-      <li>{{ u['Brand'] }} {{ u['Model (Series/Gen)'] }} — {{ u['PriceAUD'] }} AUD</li>
-    {% endfor %}
-  </ul>
-  <p>Subtotal: {{ sub_units }} AUD</p>
-  <p>Install: {{ install_total }} AUD &nbsp; Call-out: {{ callout_total }} AUD &nbsp; Shipping: {{ shipping }} AUD</p>
-  <h3>Total: {{ grand }} AUD ({{ g.ccy }})</h3>
-  <p class="muted">Payment gateway will be wired in once keys are added.</p>
+  {% if not items %}
+    <p>No items in cart.</p>
+    <a class="btn" href="{{ url_for('shop') }}">Back to shop</a>
+  {% else %}
+
+    <div class="card" style="padding:0">
+      <div style="display:grid;grid-template-columns:2fr 3fr 1fr;gap:8px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600">
+        <div>Product</div>
+        <div>Selected options</div>
+        <div style="text-align:right">Unit (AUD)</div>
+      </div>
+
+      {% for x in items %}
+      <div style="display:grid;grid-template-columns:2fr 3fr 1fr;gap:8px;padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">
+        <div>
+          <div><b>{{ x.unit.Brand }} {{ x.unit["Model (Series/Gen)"] }}</b></div>
+          <div class="muted">{{ x.unit["Years From"] }}–{{ x.unit["Years To"] }} · {{ x.unit["Head Unit Size"] }} · Luxury: {{ x.unit["Luxury"] }}</div>
+        </div>
+        <div class="muted">
+          {% set opt = x.opt %}
+          {% if opt.custom_sound %}Custom sound: Yes · {% endif %}
+          {% if opt.premium_brand %}Premium: {{ opt.premium_brand }} · {% endif %}
+          {% if opt.extra_mic %}External mic · {% endif %}
+          {% if opt.keep_sw_controls %}SWC retained · {% endif %}
+          {% if opt.postcode %}Postcode: {{ opt.postcode }}{% endif %}
+          {% if opt.want_install %} · Install{% endif %}
+          {% if opt.want_callout %} · Call-out{% endif %}
+        </div>
+        <div style="text-align:right">{{ x.unit.PriceAUD }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:14px">
+      <p>Subtotal (units): <b>{{ sub_units }}</b> AUD</p>
+      <p>Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
+      <h3>Grand total: {{ grand }} AUD ({{ g.ccy }})</h3>
+    </div>
+
+    <p class="muted">Payments (Stripe/Apple Pay) can be enabled next; totals are accurate with your Brisbane/Gold Coast gating and fees.</p>
+  {% endif %}
 </div>
 {% endblock %}
