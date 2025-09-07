@@ -7,51 +7,122 @@
   </div>
   <p class="muted">Years: {{ u["Years From"] }}–{{ u["Years To"] }} · Head unit: {{ u["Head Unit Size"] }} · Luxury: {{ u["Luxury"] }}</p>
 
-  <div data-tabs="opts" class="tabs">
-    <div class="tab active" data-name="audio" onclick="activateTab('opts','audio')">Audio options</div>
-    <div class="tab" data-name="install" onclick="activateTab('opts','install')">Install & Call‑out</div>
-    <div class="tab" data-name="extras" onclick="activateTab('opts','extras')">Extras</div>
-  </div>
-
-  <form method="post">
-    <div data-panes="opts">
-      <div class="tabpane active" data-name="audio">
-        <p><b>Custom sound system?</b></p>
-        <label><input type="radio" name="custom_sound" value="no" checked> No / factory</label>
-        <label><input type="radio" name="custom_sound" value="yes"> Yes (aftermarket amps/subs)</label>
-
-        <p style="margin-top:12px"><b>Premium OEM brand (if applicable)</b></p>
-        <select name="premium_brand">
-          <option value="">None / Not sure</option>
-          <option>JBL</option>
-          <option>Harman Kardon</option>
-          <option>Bang & Olufsen</option>
-          <option>Meridian</option>
-          <option>Bose</option>
-          <option>Mark Levinson</option>
-          <option>Rockford Fosgate</option>
-        </select>
-        <p class="muted" style="margin-top:6px">Selecting the premium brand helps us bring the correct MOST/AMP integration kit.</p>
-      </div>
-
-      <div class="tabpane" data-name="install">
-        <p><b>Service area check (Brisbane & Gold Coast only):</b></p>
-        <input name="postcode" value="{{ postcode }}" placeholder="Postcode e.g. 4000" />
-        <p class="muted">Install and call‑out options are enabled only if the postcode is in our local area.</p>
-        <label><input type="checkbox" name="want_install" {% if not local_ok %}disabled{% endif %}> Request installation ({{ '130' if u['Luxury']=='Yes' else '90' }} AUD)</label>
-        <label><input type="checkbox" name="want_callout" {% if not local_ok %}disabled{% endif %}> Call‑out (60 AUD)</label>
-      </div>
-
-      <div class="tabpane" data-name="extras">
-        <label><input type="checkbox" name="extra_mic"> Add external microphone</label>
-        <label><input type="checkbox" name="keep_sw_controls" checked> Keep steering‑wheel controls</label>
-      </div>
+  <form method="post" id="cfgForm">
+    <!-- Price summary pinned at top of form -->
+    <div class="card" style="margin-top:8px">
+      <div><b>Base price:</b> <span id="basePrice">{{ u['PriceAUD'] }}</span> AUD</div>
+      <div><b>Install + Call-out:</b> <span id="onsiteCost">0</span> AUD</div>
+      <div><b>Extras:</b> <span id="extrasCost">0</span> AUD</div>
+      <div style="margin-top:6px"><h3 style="margin:0">Total: <span id="grandPrice">{{ u['PriceAUD'] }}</span> AUD</h3></div>
     </div>
 
-    <div style="margin-top:14px">
-      <button class="btn" type="submit">Add to cart — {{ u['PriceAUD'] }} AUD</button>
-      <a class="btn" href="{{ url_for('shop') }}" style="margin-left:8px">Back to shop</a>
+    <!-- 1) Audio systems -->
+    <div class="card">
+      <h3>Audio systems</h3>
+      <p><b>Custom sound system?</b></p>
+      <label><input type="radio" name="custom_sound" value="no" checked> No / factory</label>
+      <label><input type="radio" name="custom_sound" value="yes"> Yes (aftermarket amps/subs)</label>
+
+      <p style="margin-top:12px"><b>Premium OEM brand (if applicable)</b></p>
+      <select name="premium_brand">
+        <option value="">None / Not sure</option>
+        <option>JBL</option>
+        <option>Harman Kardon</option>
+        <option>Bang & Olufsen</option>
+        <option>Meridian</option>
+        <option>Bose</option>
+        <option>Mark Levinson</option>
+        <option>Rockford Fosgate</option>
+      </select>
+      <p class="muted" style="margin-top:6px">Choosing the premium brand helps us bring the correct MOST/AMP integration kit.</p>
+    </div>
+
+    <!-- 2) Install + Call-out (combined) -->
+    <div class="card">
+      <h3>Install + Call-out</h3>
+      <p><b>Service area check (Brisbane & Gold Coast only):</b></p>
+      <input name="postcode" id="postcode" value="{{ postcode }}" placeholder="Postcode e.g. 4000" />
+      <p class="muted" id="areaNote">Enter a local postcode to enable onsite service.</p>
+      <label>
+        <input type="checkbox" name="onsite" id="onsite" {% if not local_ok %}disabled{% endif %}>
+        Request Install + Call-out ({{ '130' if u['Luxury']=='Yes' else '90' }} + 60 AUD)
+      </label>
+    </div>
+
+    <!-- 3) Extras -->
+    <div class="card">
+      <h3>Extras</h3>
+      <label><input type="checkbox" name="gps" id="gps"> GPS module (+{{ gps_price }} AUD)</label>
+      <label><input type="checkbox" name="dashcam" id="dashcam"> Dash cam (+{{ dash_price }} AUD)</label>
+    </div>
+
+    <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn" type="submit" id="addBtn">Add to cart — {{ u['PriceAUD'] }} AUD</button>
+      <a class="btn" href="{{ url_for('shop') }}">Back to shop</a>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <p>
+        Our head units deliver fast boot-up, crystal-clear touch displays, and seamless wireless CarPlay/Android Auto — all with
+        a factory-fit look. Steering-wheel controls are retained, sound is clean and punchy, and navigation stays smooth even
+        when you’re streaming. <br><br>
+        <b>Our units are premium quality, and we don’t compromise.</b> You won’t find better value because our discounts are huge.
+        Plus, others won’t give you <b>8 months warranty</b> and after-sales service like we do. If any future issues come up,
+        service fees are discounted, so you’re always covered.
+      </p>
     </div>
   </form>
 </div>
+
+<script>
+  // simple local postcode check (server still gates it for real)
+  function localEligible(pc){
+    const n = parseInt(String(pc||'').trim(), 10);
+    if (isNaN(n)) return false;
+    if (n>=4207 && n<=4228) return true; // Gold Coast
+    if (n>=4000 && n<=4999) return true; // QLD metro (includes Brisbane band)
+    return false;
+  }
+  const base = Number({{ u['PriceAUD'] }});
+  const isLux = "{{ u['Luxury'] }}" === "Yes";
+  const installFee = isLux ? 130 : 90;
+  const callout = 60;
+  const GPS = Number({{ gps_price }});
+  const DASH = Number({{ dash_price }});
+
+  const baseEl = document.getElementById('basePrice');
+  const onsiteEl = document.getElementById('onsiteCost');
+  const extrasEl = document.getElementById('extrasCost');
+  const grandEl = document.getElementById('grandPrice');
+  const btn = document.getElementById('addBtn');
+  const pcEl = document.getElementById('postcode');
+  const note = document.getElementById('areaNote');
+  const onsite = document.getElementById('onsite');
+  const gps = document.getElementById('gps');
+  const dash = document.getElementById('dashcam');
+
+  function recalc(){
+    const pc = pcEl.value || "";
+    const local = localEligible(pc);
+
+    // toggle onsite availability by postcode
+    onsite.disabled = !local;
+
+    const onsiteCost = (onsite.checked && local) ? (installFee + callout) : 0;
+    const extrasCost = (gps.checked ? GPS : 0) + (dash.checked ? DASH : 0);
+    const grand = base + onsiteCost + extrasCost;
+
+    onsiteEl.textContent = onsiteCost.toFixed(0);
+    extrasEl.textContent = extrasCost.toFixed(0);
+    grandEl.textContent = grand.toFixed(0);
+    btn.textContent = `Add to cart — ${grand.toFixed(0)} AUD`;
+
+    note.textContent = local ? "Onsite service enabled for this postcode." : "Enter a local postcode to enable onsite service.";
+  }
+
+  [pcEl, onsite, gps, dash].forEach(el => el && el.addEventListener('input', recalc));
+  [onsite, gps, dash].forEach(el => el && el.addEventListener('change', recalc));
+  baseEl.textContent = base.toFixed(0);
+  recalc();
+</script>
 {% endblock %}
