@@ -1,41 +1,62 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Cart</h2>
+
 <div class="card">
   {% if not items %}
     Empty. <a class="btn" href="{{ url_for('shop') }}">Go to shop</a>
   {% else %}
-    <form method="post" style="margin-bottom:10px">
+
+    <form method="post" style="margin-bottom:16px">
       <label>Postcode:</label>
       <input name="postcode" value="{{ postcode }}" placeholder="e.g. 4000" />
       <label><input type="checkbox" name="want_install"> Apply install</label>
-      <label><input type="checkbox" name="want_callout"> Apply call‑out</label>
+      <label><input type="checkbox" name="want_callout"> Apply call-out</label>
       <button class="btn" type="submit">Update</button>
       <p class="muted" style="margin-top:6px">Local eligible: {{ 'Yes' if local_ok else 'No (Brisbane/Gold Coast only)' }}</p>
     </form>
 
-    <ul>
-      {% for x in items %}
-        <li>
-          <b>{{ x.unit.Brand }} {{ x.unit["Model (Series/Gen)"] }}</b> — {{ x.unit.PriceAUD }} AUD
-          <div class="muted">
-            {% set opt = x.opt %}
-            {% if opt.custom_sound %}Custom sound: Yes · {% endif %}
-            {% if opt.premium_brand %}Premium: {{ opt.premium_brand }} · {% endif %}
-            {% if opt.extra_mic %}External mic · {% endif %}
-            {% if opt.keep_sw_controls %}SWC retained · {% endif %}
-            {% if opt.postcode %}Postcode: {{ opt.postcode }}{% endif %}
-            {% if opt.want_install %} · Install{% endif %}
-            {% if opt.want_callout %} · Call‑out{% endif %}
-          </div>
-        </li>
-      {% endfor %}
-    </ul>
+    <div class="card" style="padding:0">
+      <div style="display:grid;grid-template-columns:2fr 3fr 1fr 100px;gap:8px;padding:10px;border-bottom:1px solid rgba(255,255,255,.08);font-weight:600">
+        <div>Product</div>
+        <div>Options</div>
+        <div style="text-align:right">Unit (AUD)</div>
+        <div></div>
+      </div>
 
-    <p>Subtotal: {{ sub_units }} AUD</p>
-    <p>Install: {{ install_total }} AUD &nbsp; Call‑out: {{ callout_total }} AUD &nbsp; Shipping: {{ shipping }} AUD</p>
-    <h3>Total: {{ grand }} AUD ({{ g.ccy }})</h3>
-    <a class="btn" href="{{ url_for('checkout') }}">Checkout</a>
+      {% for x in items %}
+      <div style="display:grid;grid-template-columns:2fr 3fr 1fr 100px;gap:8px;padding:10px;border-bottom:1px solid rgba(255,255,255,.06)">
+        <div>
+          <div><b>{{ x.unit.Brand }} {{ x.unit["Model (Series/Gen)"] }}</b></div>
+          <div class="muted">{{ x.unit["Years From"] }}–{{ x.unit["Years To"] }} · {{ x.unit["Head Unit Size"] }} · Luxury: {{ x.unit["Luxury"] }}</div>
+        </div>
+        <div class="muted">
+          {% set opt = x.opt %}
+          {% if opt.custom_sound %}Custom sound: Yes<br>{% endif %}
+          {% if opt.premium_brand %}Premium: {{ opt.premium_brand }}<br>{% endif %}
+          {% if opt.extra_mic %}External mic<br>{% endif %}
+          {% if opt.keep_sw_controls %}SWC retained<br>{% endif %}
+          {% if opt.postcode %}Postcode: {{ opt.postcode }}{% endif %}
+          {% if opt.want_install %}<br>Install requested{% endif %}
+          {% if opt.want_callout %}<br>Call-out requested{% endif %}
+        </div>
+        <div style="text-align:right">{{ x.unit.PriceAUD }}</div>
+        <div>
+          <form method="post" action="{{ url_for('remove', i=loop.index0) }}">
+            <button class="btn" type="submit" style="width:100%">Remove</button>
+          </form>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div style="margin-top:14px">
+      <p>Subtotal (units): <b>{{ sub_units }}</b> AUD</p>
+      <p>Install total: <b>{{ install_total }}</b> AUD &nbsp; Call-out: <b>{{ callout_total }}</b> AUD &nbsp; Shipping: <b>{{ shipping }}</b> AUD</p>
+      <h3>Grand total: {{ grand }} AUD ({{ g.ccy }})</h3>
+    </div>
+
+    <a class="btn" href="{{ url_for('checkout') }}">Proceed to checkout</a>
   {% endif %}
 </div>
 {% endblock %}
