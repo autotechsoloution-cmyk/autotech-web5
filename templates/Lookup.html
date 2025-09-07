@@ -23,118 +23,96 @@
 <div id="results"></div>
 
 <script>
-  // Data from server (compact)
+  // Data provided by server
   const ITEMS = {{ items|tojson }};
 
-  // Build maps: brand -> models[], and model/year ranges
+  // Base URLs from Jinja (no placeholders!)
+  const STATIC_BASE = "{{ url_for('static', filename='') }}";
+  const DETAIL_BASE = "{{ url_for('unit_detail', uid=0) }}"; // we'll replace the trailing 0
+
+  // Build maps for dropdowns
   const byBrand = {};
-  const modelYears = {}; // key: brand + "||" + model -> {y0,y1}
+  const modelYears = {}; // key brand||model -> {y0,y1}
 
   for (const it of ITEMS) {
-    if (!byBrand[it.brand]) byBrand[it.brand] = new Set();
-    byBrand[it.brand].add(it.model);
-
+    (byBrand[it.brand] ||= new Set()).add(it.model);
     const key = it.brand + "||" + it.model;
     if (!modelYears[key]) modelYears[key] = { y0: it.y0, y1: it.y1 };
-    // widen if needed across multiple entries
     modelYears[key].y0 = Math.min(modelYears[key].y0, it.y0);
     modelYears[key].y1 = Math.max(modelYears[key].y1, it.y1);
   }
 
-  // Populate brand select
   const brandSel = document.getElementById('brandSel');
   const modelSel = document.getElementById('modelSel');
-  const yearSel = document.getElementById('yearSel');
-  const results = document.getElementById('results');
+  const yearSel  = document.getElementById('yearSel');
+  const results  = document.getElementById('results');
 
   function opt(el, v, t){ const o=document.createElement('option'); o.value=v; o.textContent=t||v; el.appendChild(o); }
-
-  function reset(el, placeholder){
-    el.innerHTML = '';
-    opt(el, '', placeholder);
-    el.disabled = true;
-  }
+  function reset(el, ph){ el.innerHTML=''; opt(el,'',ph); el.disabled=true; }
 
   function populateBrands(){
-    reset(brandSel, 'Select brand');
-    const brands = Object.keys(byBrand).sort();
-    for (const b of brands) opt(brandSel, b, b);
+    reset(brandSel,'Select brand');
+    for (const b of Object.keys(byBrand).sort()) opt(brandSel,b,b);
   }
 
   function populateModels(brand){
-    reset(modelSel, 'Select model');
-    reset(yearSel, 'Select year');
-    if (!brand){ return; }
-    const models = Array.from(byBrand[brand]).sort();
-    for (const m of models) opt(modelSel, m, m);
+    reset(modelSel,'Select model'); reset(yearSel,'Select year'); results.innerHTML='';
+    if (!brand) return;
+    for (const m of Array.from(byBrand[brand]).sort()) opt(modelSel,m,m);
+    modelSel.disabled = true ? false : false; // enable
     modelSel.disabled = false;
   }
 
-  function populateYears(brand, model){
-    reset(yearSel, 'Select year');
-    if (!brand || !model){ return; }
+  function populateYears(brand,model){
+    reset(yearSel,'Select year'); results.innerHTML='';
+    if (!brand || !model) return;
     const key = brand + "||" + model;
-    const yr = modelYears[key];
-    const y0 = yr?.y0 || 1990;
-    const y1 = yr?.y1 || (new Date()).getFullYear();
-    for (let y=y1; y>=y0; y--) opt(yearSel, String(y), String(y));
+    const yr = modelYears[key] || {y0:1990, y1:(new Date()).getFullYear()};
+    for (let y = yr.y1; y >= yr.y0; y--) opt(yearSel, String(y), String(y));
     yearSel.disabled = false;
   }
 
-  function showMatches(brand, model, year){
-    // Match any item that satisfies brand+model and y0 <= year <= y1
-    const y = parseInt(year, 10);
-    const matches = ITEMS.filter(it =>
-      it.brand === brand && it.model === model && y >= it.y0 && y <= it.y1
-    );
+  function showMatches(brand,model,year){
+    results.innerHTML='';
+    const y = parseInt(year,10);
+    const matches = ITEMS.filter(it => it.brand===brand && it.model===model && y>=it.y0 && y<=it.y1);
 
-    results.innerHTML = '';
-    if (matches.length === 0) {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `<p>No exact matches found. Try a nearby year range or use the <a href="{{ url_for('home') }}">VIN checker</a> for exact decoding.</p>`;
-      results.appendChild(card);
+    if (!matches.length){
+      const c = document.createElement('div');
+      c.className='card';
+      c.innerHTML = `No exact matches. Try another year or use the <a href="{{ url_for('home') }}">VIN checker</a> on Home.`;
+      results.appendChild(c);
       return;
     }
 
     const grid = document.createElement('div');
     grid.className = 'grid';
-    for (const m of matches) {
+
+    for (const m of matches){
       const card = document.createElement('div');
       card.className = 'card';
       card.innerHTML = `
-        <div class="imgwrap"><img src="{{ url_for('static', filename='${'REPLACE'}') }}" alt="" style="max-height:100%;max-width:100%"></div>
+        <div class="imgwrap"><img alt="" style="max-height:100%;max-width:100%"></div>
         <div><b>${m.brand} ${m.model}</b></div>
         <div class="muted">${m.y0}–${m.y1} · ${m.size} · Luxury: ${m.lux}</div>
-        <div style="margin-top:6px">
-          <a class="btn" href="{{ url_for('unit_detail', uid=0) }}">Details</a>
+        <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
+          <a class="btn">Enquire more</a>
         </div>
       `;
-      // Fix the image + link values dynamically:
-      const img = card.querySelector('img');
-      img.src = "{{ url_for('static', filename='') }}" + m.img;
-      const a = card.querySelector('a.btn');
-      a.href = "{{ url_for('unit_detail', uid=0) }}".replace('/0', '/' + m.id);
+      card.querySelector('img').src = STATIC_BASE + m.img;
+
+      const detailsHref = DETAIL_BASE.replace(/0$/, String(m.id));
+      card.querySelector('a.btn').href = detailsHref;
+
       grid.appendChild(card);
     }
     results.appendChild(grid);
   }
 
-  brandSel.addEventListener('change', e=>{
-    populateModels(e.target.value);
-    results.innerHTML = '';
-  });
-
-  modelSel.addEventListener('change', e=>{
-    populateYears(brandSel.value, e.target.value);
-    results.innerHTML = '';
-  });
-
-  yearSel.addEventListener('change', e=>{
-    showMatches(brandSel.value, modelSel.value, e.target.value);
-  });
+  brandSel.addEventListener('change', e => populateModels(e.target.value));
+  modelSel.addEventListener('change', e => populateYears(brandSel.value, e.target.value));
+  yearSel .addEventListener('change', e => showMatches(brandSel.value, modelSel.value, e.target.value));
 
   populateBrands();
 </script>
 {% endblock %}
-
